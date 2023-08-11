@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "cd frontend-aviator-ascent && npm run dev"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.4.0"
+  }
+}
