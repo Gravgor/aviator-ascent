@@ -44,7 +44,7 @@ Follow these steps to get started with your Aviator Ascent pilot career:
 
 ### Installation
 
-1. Clone the repository: `git clone https://github.com/your-username/aviator-ascent.git`
+1. Clone the repository: `git clone https://github.com/Gravgor/aviator-ascent.git`
 2. Navigate to the project directory: `cd aviator-ascent`
 3. Install dependencies: `npm install`
 
