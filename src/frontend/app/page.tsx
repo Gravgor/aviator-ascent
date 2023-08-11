@@ -1,4 +1,4 @@
-import Authorization from "@/components/Authorization";
+import Authorization from "@/pages/Authorization";
 
 
 export default function Home() {

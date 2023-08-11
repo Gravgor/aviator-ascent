@@ -1,5 +1,6 @@
 import { Providers } from '@/redux/provider'
 import './globals.css'
+
 import Footer from '@/components/Footer'
 
 export const metadata = {
@@ -17,7 +18,6 @@ export default function RootLayout({
       <body>
         <Providers>
           {children}
-          <Footer />
           </Providers>
       </body>
     </html>
