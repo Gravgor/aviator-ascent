@@ -1,17 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react";
-
 import { useForm, Resolver } from "react-hook-form";
-import { FiUser, FiLock, FiArrowRight, FiLink, FiLoader } from "react-icons/fi";
+import { FiUser, FiLock, FiArrowRight, FiMail, FiArrowLeft } from "react-icons/fi";
 import Image from "next/image";
 import Link from 'next/link'
-import Notification from "@/components/Notification";
 import SubmitButton from "@/components/Button";
 
 type FormValues = {
     username: string;
+    email: string;
     password: string;
+    confirmPassword: string;
 };
 
 type FormErrors = {
@@ -19,7 +19,15 @@ type FormErrors = {
         type: string;
         message: string;
     };
+    email?: {
+        type: string;
+        message: string;
+    };
     password?: {
+        type: string;
+        message: string;
+    };
+    confirmPassword?: {
         type: string;
         message: string;
     };
@@ -35,6 +43,18 @@ const resolver: Resolver<FormValues> = async (values) => {
         };
     }
 
+    if (!values.email) {
+        errors.email = {
+            type: "required",
+            message: "This is required.",
+        };
+    } else if (!/^\S+@\S+$/i.test(values.email)) {
+        errors.email = {
+            type: "pattern",
+            message: "Invalid email format.",
+        };
+    }
+
     if (!values.password) {
         errors.password = {
             type: "required",
@@ -47,14 +67,25 @@ const resolver: Resolver<FormValues> = async (values) => {
         };
     }
 
+    if (!values.confirmPassword) {
+        errors.confirmPassword = {
+            type: "required",
+            message: "This is required.",
+        };
+    } else if (values.confirmPassword !== values.password) {
+        errors.confirmPassword = {
+            type: "validate",
+            message: "Passwords do not match.",
+        };
+    }
+
     return {
         values: Object.keys(errors).length === 0 ? values : {},
         errors,
     };
 };
 
-
-export default function Authorization() {
+export default function CreateAccount() {
 
     const [errorVisible, setErrorVisible] = useState(false);
     const [notificationVisible, setNotificationVisible] = useState(false);
@@ -70,19 +101,18 @@ export default function Authorization() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setErrorVisible(false);
-        }, 5000);
+        }, 10000);
 
         return () => {
             clearTimeout(timer);
         };
     }, [errorVisible]);
 
-
     const onSubmit = handleSubmit(async (data) => {
         setLoading(true);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            throw new Error("Invalid username or password.");
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            throw new Error("Something went wrong.");
         } catch (error) {
             if (error instanceof Error) {
                 setLoading(false);
@@ -90,7 +120,6 @@ export default function Authorization() {
             }
         }
     });
-
     return (
         <div className="relative min-h-screen">
             <Image
@@ -113,7 +142,7 @@ export default function Authorization() {
                             className="mx-auto mb-2"
                         />
                     </div>
-                    <h2 className="text-2xl text-black text-center font-semibold mb-4 mt-4">Sign In to Aviator Ascent</h2>
+                    <h2 className="text-2xl text-black text-center font-semibold mb-4 mt-4">Create an Account</h2>
                     <form onSubmit={onSubmit}>
                         <div className="mb-4 relative">
                             <label htmlFor="username" className="block mb-1 font-medium text-black">
@@ -139,7 +168,31 @@ export default function Authorization() {
                                 </p>
                             )}
                         </div>
-                        <div className="mb-6 relative">
+                        <div className="mb-4 relative">
+                            <label htmlFor="email" className="block mb-1 font-medium text-black">
+                                Email
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="email"
+                                    id="email"
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.email && errorVisible ? 'border-red-500' : ''
+                                        } pl-10`}
+                                    {...register('email')}
+                                    onFocus={() => setErrorVisible(false)}
+                                    onBlur={() => setErrorVisible(errors.email !== undefined)}
+                                />
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-2">
+                                    <FiMail className="text-gray-600" />
+                                </span>
+                            </div>
+                            {errors.email && errorVisible && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.email.message}
+                                </p>
+                            )}
+                        </div>
+                        <div className="mb-4 relative">
                             <label htmlFor="password" className="block mb-1 font-medium text-black">
                                 Password
                             </label>
@@ -163,27 +216,41 @@ export default function Authorization() {
                                 </p>
                             )}
                         </div>
-                        <SubmitButton text="Sign In" isLoading={isLoading}/>
+                        <div className="mb-6 relative">
+                            <label htmlFor="confirmPassword" className="block mb-1 font-medium text-black">
+                                Confirm Password
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="password"
+                                    id="confirmPassword"
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.confirmPassword && errorVisible ? 'border-red-500' : ''
+                                        } pl-10`}
+                                    {...register("confirmPassword")}
+                                    onFocus={() => setErrorVisible(false)}
+                                    onBlur={() => setErrorVisible(errors.confirmPassword !== undefined)}
+                                />
+                                <span className="absolute inset-y-0 left-0 flex items-center pl-2">
+                                    <FiLock className="text-gray-600" />
+                                </span>
+                            </div>
+                            {errors.confirmPassword && errorVisible && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.confirmPassword.message}
+                                </p>
+                            )}
+                        </div>
+                        <SubmitButton text="Create Account" isLoading={isLoading} />
                     </form>
-                    {notificationVisible && (
-                        <Notification message={"Invalid Password or Username"} type="error" setNotificationVisible={setNotificationVisible} />
-                    )}
-                    <div className="flex items-center justify-between mt-4">
-                        <div className="text-center">
-                            <Link className="text-blue-500 hover:underline flex items-center" href="/forgot-password">
-                                <FiLink className="inline-block mr-1" />
-                                Forgot Password?
-                            </Link>
-                        </div>
-                        <div className="text-center flex flex-col">
-                            <Link className="text-blue-500 hover:underline flex items-center" href="/create-account" passHref>
-                                <FiLink className="inline-block mr-1" />
-                                Create Account
-                            </Link>
-                        </div>
+                    <div className="text-center mt-4">
+                        <Link className="text-blue-500 hover:underline flex items-center" href="/authorization" passHref>
+                            <FiArrowLeft className="inline-block mr-1" />
+                            Back to Sign In
+                        </Link>
                     </div>
                 </div>
             </div>
         </div>
+
     );
 }

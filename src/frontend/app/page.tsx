@@ -1,6 +1,9 @@
-import Authorization from "@/pages/Authorization";
+import Link from "next/link";
+
 
 
 export default function Home() {
-  return <Authorization />;
+    return <Link href="/authorization">
+        Authorization
+    </Link>;
 }
