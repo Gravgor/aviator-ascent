@@ -6,8 +6,9 @@ import { useForm, Resolver } from "react-hook-form";
 import { FiUser, FiLock, FiArrowRight, FiLink, FiLoader } from "react-icons/fi";
 import Image from "next/image";
 import Link from 'next/link'
-import Notification from "@/components/Notification";
-import SubmitButton from "@/components/Button";
+import SubmitButton from "@/components/global/Button";
+import { addNotification } from "@/redux/features/notificationSlice";
+import { useAppDispatch } from "@/redux/hooks";
 
 type FormValues = {
     username: string;
@@ -57,9 +58,10 @@ const resolver: Resolver<FormValues> = async (values) => {
 export default function Authorization() {
 
     const [errorVisible, setErrorVisible] = useState(false);
-    const [notificationVisible, setNotificationVisible] = useState(false);
 
     const [isLoading, setLoading] = useState(false);
+
+    const dispatch = useAppDispatch();
 
     const {
         register,
@@ -86,7 +88,10 @@ export default function Authorization() {
         } catch (error) {
             if (error instanceof Error) {
                 setLoading(false);
-                setNotificationVisible(true);
+                dispatch(addNotification({
+                    type: "error",
+                    message: "Invalid username or password.",
+                }))
             }
         }
     });
@@ -165,9 +170,6 @@ export default function Authorization() {
                         </div>
                         <SubmitButton text="Sign In" isLoading={isLoading}/>
                     </form>
-                    {notificationVisible && (
-                        <Notification message={"Invalid Password or Username"} type="error" setNotificationVisible={setNotificationVisible} />
-                    )}
                     <div className="flex items-center justify-between mt-4">
                         <div className="text-center">
                             <Link className="text-blue-500 hover:underline flex items-center" href="/forgot-password">

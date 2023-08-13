@@ -1,7 +1,8 @@
 import { Providers } from '@/redux/provider'
 import './globals.css'
 
-import Footer from '@/components/Footer'
+import Footer from '@/components/global/Footer'
+import NotificationContainer from '@/components/global/NotificationContainer'
 
 export const metadata = {
   title: 'Aviator Ascent',
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body>
         <Providers>
           {children}
+          <NotificationContainer />
           </Providers>
       </body>
     </html>

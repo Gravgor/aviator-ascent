@@ -5,7 +5,7 @@ import { useForm, Resolver } from "react-hook-form";
 import { FiUser, FiLock, FiArrowRight, FiMail, FiArrowLeft } from "react-icons/fi";
 import Image from "next/image";
 import Link from 'next/link'
-import SubmitButton from "@/components/Button";
+import SubmitButton from "@/components/global/Button";
 
 type FormValues = {
     username: string;
