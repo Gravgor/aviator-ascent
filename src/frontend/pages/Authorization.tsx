@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 
-import { useForm, Resolver } from "react-hook-form";
+import { useForm, Resolver, set } from "react-hook-form";
 import { FiUser, FiLock, FiArrowRight, FiLink, FiLoader } from "react-icons/fi";
 import Image from "next/image";
 import Link from 'next/link'
 import SubmitButton from "@/components/global/Button";
 import { addNotification } from "@/redux/features/notificationSlice";
 import { useAppDispatch } from "@/redux/hooks";
-import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { setUser } from "@/redux/features/authSlice";
 
 type FormValues = {
     email: string;
@@ -64,6 +65,8 @@ export default function Authorization() {
 
     const dispatch = useAppDispatch();
 
+    const router = useRouter();
+
     const {
         register,
         handleSubmit,
@@ -84,17 +87,41 @@ export default function Authorization() {
     const onSubmit = handleSubmit(async (data) => {
         setLoading(true);
         try {
-            signIn("credentials", {
-                email: data.email,
-                password: data.password,
-                redirect: false,
-            })
+           const request = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/auth/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+           })
+            const response = await request.json();
+            if (response.error) {
+                setLoading(false);
+                dispatch(addNotification({
+                    type: "error",
+                    message: response.message,
+                }))
+            } else {
+                setLoading(false);
+                dispatch(addNotification({
+                    type: "success",
+                    message: "Logged in successfully!",
+                }))
+                dispatch(setUser({
+                    username: response.username,
+                    email: response.email,
+                    firstname: response.firstName,
+                    lastname: response.lastName,
+                    token: "token",
+                }))
+                router.push('/dashboard')
+            }
         } catch (error) {
             if (error instanceof Error) {
                 setLoading(false);
                 dispatch(addNotification({
                     type: "error",
-                    message: error,
+                    message: error.message,
                 }))
             }
         }
@@ -130,7 +157,7 @@ export default function Authorization() {
                             </label>
                             <div className="relative">
                                 <input
-                                    type="text"
+                                    type="email"
                                     id="email"
                                     className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.email && errorVisible ? 'border-red-500' : ''
                                         } pl-10`}

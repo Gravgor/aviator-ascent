@@ -27,7 +27,7 @@ const userController = {
         },
       });
 
-      return res.status(201).json(newUser);
+      return res.status(201).json({ message: 'User created', user: newUser, error: null  });
     } catch (error) {
       console.error('Error creating user:', error);
       return res.status(500).json({ error: 'Internal server error' });
@@ -47,9 +47,29 @@ const userController = {
       return res.status(200).json(user);
     } catch (error) {
       console.error('Error logging in user:', error);
-      return res.status(500).json({ error: `${error}` });
+      return res.status(500).json(error);
     }
-  }
-};
+  },
+    getUserById: async (req: Request, res: Response) => {
+      try {
+        const userEmail = req.params.email;
+        const user = await prisma.user.findUnique({
+          where: {
+            email: userEmail,
+          },
+        });
+        
+        if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+        
+        return res.status(200).json(user);
+      } catch (error) {
+        console.error('Error getting user by ID:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+    },
+  };
+
 
 export default userController;

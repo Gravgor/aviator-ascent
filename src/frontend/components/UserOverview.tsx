@@ -2,7 +2,17 @@ import { FiDollarSign, FiTrendingUp, FiMapPin, FiAward } from 'react-icons/fi';
 import Image from 'next/image';
 import React from 'react';
 
-export default function UserOverview() {
+interface Props {
+    money: number;
+    reputation: number;
+    rank: string;
+    achievements: number;
+    username: string;
+    airline: string;
+    salary: number;
+}
+
+export default function UserOverview({ money, reputation, rank, achievements, username, airline, salary }: Props) {
 
     return (
         <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -13,7 +23,9 @@ export default function UserOverview() {
                     <FiDollarSign className="text-2xl mr-2" />
                     <div>
                         <p className="text-xs">Bank Account</p>
-                        <p className="text-lg font-semibold">$120,450</p>
+                        <p className="text-lg font-semibold">
+                            ${money.toLocaleString()}
+                        </p>
                     </div>
                 </div>
 
@@ -31,7 +43,9 @@ export default function UserOverview() {
                     <FiMapPin className="text-2xl mr-2" />
                     <div>
                         <p className="text-xs">Current Rank</p>
-                        <p className="text-lg font-semibold">Captain</p>
+                        <p className="text-lg font-semibold">
+                            {rank}
+                        </p>
                     </div>
                 </div>
 
@@ -40,7 +54,9 @@ export default function UserOverview() {
                     <FiAward className="text-2xl mr-2" />
                     <div>
                         <p className="text-xs">Achievements</p>
-                        <p className="text-lg font-semibold">12 Earned</p>
+                        <p className="text-lg font-semibold">
+                            {achievements} Earned
+                        </p>
                     </div>
                 </div>
             </div>
@@ -57,9 +73,9 @@ export default function UserOverview() {
                     />
                 </div>
                 <div className="ml-4">
-                    <p className="text-lg text-black font-semibold">John Doe</p>
-                    <p className="text-gray-500">Airline: Aviator Airways</p>
-                    <p className="text-gray-500">Hourly Salary: $100</p>
+                    <p className="text-lg text-black font-semibold">{username}</p>
+                    <p className="text-gray-500">Airline: {airline}</p>
+                    <p className="text-gray-500">Hourly Salary: ${salary}</p>
                 </div>
             </div>
 

@@ -1,102 +1,34 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { useForm, Resolver } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form"
 import { FiUser, FiLock, FiArrowRight, FiMail, FiArrowLeft } from "react-icons/fi";
 import Image from "next/image";
 import Link from 'next/link'
 import SubmitButton from "@/components/global/Button";
+import { useAppDispatch } from "@/redux/hooks";
+import { addNotification } from "@/redux/features/notificationSlice";
+import { useRouter } from "next/navigation";
 
 type FormValues = {
     username: string;
     email: string;
     password: string;
     confirmPassword: string;
+    firstName: string;
+    lastName: string;
 };
 
-type FormErrors = {
-    username?: {
-        type: string;
-        message: string;
-    };
-    email?: {
-        type: string;
-        message: string;
-    };
-    password?: {
-        type: string;
-        message: string;
-    };
-    confirmPassword?: {
-        type: string;
-        message: string;
-    };
-};
-
-const resolver: Resolver<FormValues> = async (values) => {
-    const errors: FormErrors = {};
-
-    if (!values.username) {
-        errors.username = {
-            type: "required",
-            message: "This is required.",
-        };
-    }
-
-    if (!values.email) {
-        errors.email = {
-            type: "required",
-            message: "This is required.",
-        };
-    } else if (!/^\S+@\S+$/i.test(values.email)) {
-        errors.email = {
-            type: "pattern",
-            message: "Invalid email format.",
-        };
-    }
-
-    if (!values.password) {
-        errors.password = {
-            type: "required",
-            message: "This is required.",
-        };
-    } else if (values.password.length < 6) {
-        errors.password = {
-            type: "minLength",
-            message: "Password must be at least 6 characters long.",
-        };
-    }
-
-    if (!values.confirmPassword) {
-        errors.confirmPassword = {
-            type: "required",
-            message: "This is required.",
-        };
-    } else if (values.confirmPassword !== values.password) {
-        errors.confirmPassword = {
-            type: "validate",
-            message: "Passwords do not match.",
-        };
-    }
-
-    return {
-        values: Object.keys(errors).length === 0 ? values : {},
-        errors,
-    };
-};
 
 export default function CreateAccount() {
 
     const [errorVisible, setErrorVisible] = useState(false);
-    const [notificationVisible, setNotificationVisible] = useState(false);
 
     const [isLoading, setLoading] = useState(false);
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<FormValues>({ resolver });
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+    const { register, handleSubmit } = useForm<FormValues>()
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -108,18 +40,38 @@ export default function CreateAccount() {
         };
     }, [errorVisible]);
 
-    const onSubmit = handleSubmit(async (data) => {
+    const onSubmit: SubmitHandler<FormValues> = async (data) => {
         setLoading(true);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            throw new Error("Something went wrong.");
-        } catch (error) {
-            if (error instanceof Error) {
-                setLoading(false);
-                setNotificationVisible(true);
-            }
-        }
-    });
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/auth/create-account`, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                 },
+                 body: JSON.stringify(data),
+             });
+             const json = await response.json();
+             if (!response.ok) {
+                 throw new Error(json.error);
+             } else {
+                 setLoading(false);
+                 dispatch(addNotification({
+                     type: "success",
+                     message: "Account created successfully! Please check your email to verify your account.",
+                 }))
+                 router.push('/confirm-email')
+                }
+         } catch (error) {
+             if (error instanceof Error) {
+                 setLoading(false);
+                 dispatch(addNotification({
+                     type: "error",
+                     message: error.message,
+                 }))
+             }
+         }
+
+    }
     return (
         <div className="relative min-h-screen">
             <Image
@@ -143,7 +95,7 @@ export default function CreateAccount() {
                         />
                     </div>
                     <h2 className="text-2xl text-black text-center font-semibold mb-4 mt-4">Create an Account</h2>
-                    <form onSubmit={onSubmit}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-4 relative">
                             <label htmlFor="username" className="block mb-1 font-medium text-black">
                                 Username
@@ -152,21 +104,15 @@ export default function CreateAccount() {
                                 <input
                                     type="text"
                                     id="username"
-                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.username && errorVisible ? 'border-red-500' : ''
-                                        } pl-10`}
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 pl-10`}
                                     {...register('username')}
                                     onFocus={() => setErrorVisible(false)}
-                                    onBlur={() => setErrorVisible(errors.username !== undefined)}
                                 />
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <FiUser className="text-gray-600" />
                                 </span>
                             </div>
-                            {errors.username && errorVisible && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.username.message}
-                                </p>
-                            )}
+                            
                         </div>
                         <div className="mb-4 relative">
                             <label htmlFor="email" className="block mb-1 font-medium text-black">
@@ -176,21 +122,50 @@ export default function CreateAccount() {
                                 <input
                                     type="email"
                                     id="email"
-                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.email && errorVisible ? 'border-red-500' : ''
-                                        } pl-10`}
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 pl-10`}
                                     {...register('email')}
                                     onFocus={() => setErrorVisible(false)}
-                                    onBlur={() => setErrorVisible(errors.email !== undefined)}
                                 />
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <FiMail className="text-gray-600" />
                                 </span>
                             </div>
-                            {errors.email && errorVisible && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.email.message}
-                                </p>
-                            )}
+                            
+                        </div>
+                        <div className="mb-4 relative">
+                            <label htmlFor="firstName" className="block mb-1 font-medium text-black">
+                                First Name
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="firstName"
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 pl-10`}
+                                    {...register('firstName')}
+                                    onFocus={() => setErrorVisible(false)}
+                                   
+                                />
+                                {/* Add icon */}
+                            </div>
+                            
+                        </div>
+
+                        <div className="mb-4 relative">
+                            <label htmlFor="lastName" className="block mb-1 font-medium text-black">
+                                Last Name
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="lastName"
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 pl-10`}
+                                    {...register('lastName')}
+                                    onFocus={() => setErrorVisible(false)}
+                                    
+                                />
+                                {/* Add icon */}
+                            </div>
+                            
                         </div>
                         <div className="mb-4 relative">
                             <label htmlFor="password" className="block mb-1 font-medium text-black">
@@ -200,45 +175,17 @@ export default function CreateAccount() {
                                 <input
                                     type="password"
                                     id="password"
-                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.password && errorVisible ? 'border-red-500' : ''
-                                        } pl-10`}
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 
+                                         pl-10`}
                                     {...register("password")}
                                     onFocus={() => setErrorVisible(false)}
-                                    onBlur={() => setErrorVisible(errors.password !== undefined)}
+                                    
                                 />
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <FiLock className="text-gray-600" />
                                 </span>
                             </div>
-                            {errors.password && errorVisible && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.password?.message}
-                                </p>
-                            )}
-                        </div>
-                        <div className="mb-6 relative">
-                            <label htmlFor="confirmPassword" className="block mb-1 font-medium text-black">
-                                Confirm Password
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type="password"
-                                    id="confirmPassword"
-                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.confirmPassword && errorVisible ? 'border-red-500' : ''
-                                        } pl-10`}
-                                    {...register("confirmPassword")}
-                                    onFocus={() => setErrorVisible(false)}
-                                    onBlur={() => setErrorVisible(errors.confirmPassword !== undefined)}
-                                />
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-2">
-                                    <FiLock className="text-gray-600" />
-                                </span>
-                            </div>
-                            {errors.confirmPassword && errorVisible && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.confirmPassword.message}
-                                </p>
-                            )}
+                            
                         </div>
                         <SubmitButton text="Create Account" isLoading={isLoading} />
                     </form>

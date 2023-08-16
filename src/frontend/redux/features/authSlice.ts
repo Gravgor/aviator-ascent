@@ -3,32 +3,32 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 type AuthState = {
     token: string | null;
     username: string | null;
+    firstname: string | null;
+    lastname: string | null;
     email: string | null;
     isAuthenticated: boolean;
-    userInfo: object;
-    userFlights: object;
 }
 
 const initialState: AuthState = {
     token: null,
     username: null,
+    firstname: null,
+    lastname: null,
     email: null,
     isAuthenticated: false,
-    userInfo: {},
-    userFlights: {},
 }
 
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setUser: (state, action: PayloadAction<{token: string, username: string, email: string, userInfo: object, userFlights: object}>) => {
+        setUser: (state, action: PayloadAction<{token: string, username: string, email: string, firstname: string, lastname: string}>) => {
             state.token = action.payload.token;
             state.username = action.payload.username;
+            state.firstname = action.payload.firstname;
+            state.lastname = action.payload.lastname;
             state.email = action.payload.email;
             state.isAuthenticated = true;
-            state.userInfo = action.payload.userInfo;
-            state.userFlights = action.payload.userFlights;
         },
         logout: (state) => {
             state.token = null;

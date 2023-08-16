@@ -4,8 +4,10 @@ import { authenticateUser, ensureAuthenticated } from '../middleware/authenticat
 
 const router = express.Router();
 
-router.post('/auth/singup', userController.createUser);
+router.post('/auth/create-account', userController.createUser);
 router.post('/auth/login', authenticateUser, userController.loginUser);
+
+router.get('/auth/user/:email', ensureAuthenticated, userController.getUserById);
 
 router.get('/auth/logout', ensureAuthenticated, (req, res) => {
     return res.status(200).json({ message: 'Logged out' });

@@ -6,12 +6,12 @@ import helmet from 'helmet';
 import winston from 'winston';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes';
+import cors from 'cors'; 
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,6 +33,9 @@ winston.add(new winston.transports.Console({
 
 app.use(helmet());
 
+// Use CORS middleware
+app.use(cors());
+
 app.use('/api/user', userRoutes);
 
 app.get('/', (req, res) => {
@@ -41,7 +44,7 @@ app.get('/', (req, res) => {
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     winston.error(err.message, { timestamp: Date.now() });
-    return res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(500).json({error: true, message: err.message || 'Internal server error' });
 });
 
 app.listen(port, () => {

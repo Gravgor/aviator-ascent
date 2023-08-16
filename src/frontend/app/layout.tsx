@@ -1,8 +1,11 @@
 import { Providers } from '@/redux/provider'
 import './globals.css'
-
 import Footer from '@/components/global/Footer'
 import NotificationContainer from '@/components/global/NotificationContainer'
+import AuthContext from '@/context/AuthContext'
+import { Session } from '@/context/AuthContext'
+
+
 
 export const metadata = {
   title: 'Aviator Ascent',
@@ -17,9 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>
-          {children}
-          <NotificationContainer />
+          <Providers>
+            {children}
+            <NotificationContainer />
           </Providers>
       </body>
     </html>
