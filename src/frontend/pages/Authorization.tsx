@@ -87,6 +87,43 @@ export default function Authorization() {
     const onSubmit = handleSubmit(async (data) => {
         setLoading(true);
         try {
+            const request = await fetch(`/api/auth`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+            const response = await request.json();
+            if (response.error) {
+                setLoading(false);
+                dispatch(addNotification({
+                    type: "error",
+                    message: response.message,
+                }))
+            }
+            else {
+                setLoading(false);
+                dispatch(addNotification({
+                    type: "success",
+                    message: "Logged in successfully!",
+                }))
+                dispatch(setUser({
+                    email: response.email,
+                    token: "token",
+                }))
+                router.push('/dashboard')
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                setLoading(false);
+                dispatch(addNotification({
+                    type: "error",
+                    message: error.message,
+                }))
+        }
+        }
+        /*try {
            const request = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/auth/login`, {
                 method: "POST",
                 headers: {
@@ -108,10 +145,7 @@ export default function Authorization() {
                     message: "Logged in successfully!",
                 }))
                 dispatch(setUser({
-                    username: response.username,
                     email: response.email,
-                    firstname: response.firstName,
-                    lastname: response.lastName,
                     token: "token",
                 }))
                 router.push('/dashboard')
@@ -124,7 +158,7 @@ export default function Authorization() {
                     message: error.message,
                 }))
             }
-        }
+        }*/
     });
 
     return (

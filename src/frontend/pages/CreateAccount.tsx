@@ -59,7 +59,7 @@ export default function CreateAccount() {
                      type: "success",
                      message: "Account created successfully! Please check your email to verify your account.",
                  }))
-                 router.push('/confirm-email')
+                 router.push('/create-account/confirm-email')
                 }
          } catch (error) {
              if (error instanceof Error) {

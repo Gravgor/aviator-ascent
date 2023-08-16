@@ -2,17 +2,9 @@ import { FiDollarSign, FiTrendingUp, FiMapPin, FiAward } from 'react-icons/fi';
 import Image from 'next/image';
 import React from 'react';
 
-interface Props {
-    money: number;
-    reputation: number;
-    rank: string;
-    achievements: number;
-    username: string;
-    airline: string;
-    salary: number;
-}
 
-export default function UserOverview({ money, reputation, rank, achievements, username, airline, salary }: Props) {
+
+export default function UserOverview() {
 
     return (
         <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -24,7 +16,7 @@ export default function UserOverview({ money, reputation, rank, achievements, us
                     <div>
                         <p className="text-xs">Bank Account</p>
                         <p className="text-lg font-semibold">
-                            ${money.toLocaleString()}
+                            $1,000,000
                         </p>
                     </div>
                 </div>
@@ -44,7 +36,7 @@ export default function UserOverview({ money, reputation, rank, achievements, us
                     <div>
                         <p className="text-xs">Current Rank</p>
                         <p className="text-lg font-semibold">
-                            {rank}
+                            Captain
                         </p>
                     </div>
                 </div>
@@ -55,7 +47,7 @@ export default function UserOverview({ money, reputation, rank, achievements, us
                     <div>
                         <p className="text-xs">Achievements</p>
                         <p className="text-lg font-semibold">
-                            {achievements} Earned
+                            5/10
                         </p>
                     </div>
                 </div>
@@ -73,9 +65,12 @@ export default function UserOverview({ money, reputation, rank, achievements, us
                     />
                 </div>
                 <div className="ml-4">
-                    <p className="text-lg text-black font-semibold">{username}</p>
-                    <p className="text-gray-500">Airline: {airline}</p>
-                    <p className="text-gray-500">Hourly Salary: ${salary}</p>
+                    <p className="text-lg text-black font-semibold">
+                        John Doe
+                    </p>
+                    <p className="text-gray-500">Airline: N/A
+                    </p>
+                    <p className="text-gray-500">Hourly Salary: $120</p>
                 </div>
             </div>
 
