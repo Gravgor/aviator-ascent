@@ -1,0 +1,25 @@
+# Node.js dependencies
+node_modules/
+
+# Output of build processes
+dist/
+build/
+
+# Environment files
+.env
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Logs
+logs/
+
+# Dependencies installed via npm
+package-lock.json
+
+# Compiled JavaScript files
+*.js
+
+# TypeScript build artifacts
+*.tsbuildinfo

@@ -9,14 +9,15 @@ import Link from 'next/link'
 import SubmitButton from "@/components/global/Button";
 import { addNotification } from "@/redux/features/notificationSlice";
 import { useAppDispatch } from "@/redux/hooks";
+import { signIn } from "next-auth/react";
 
 type FormValues = {
-    username: string;
+    email: string;
     password: string;
 };
 
 type FormErrors = {
-    username?: {
+    email?: {
         type: string;
         message: string;
     };
@@ -29,8 +30,8 @@ type FormErrors = {
 const resolver: Resolver<FormValues> = async (values) => {
     const errors: FormErrors = {};
 
-    if (!values.username) {
-        errors.username = {
+    if (!values.email) {
+        errors.email = {
             type: "required",
             message: "This is required.",
         };
@@ -83,14 +84,17 @@ export default function Authorization() {
     const onSubmit = handleSubmit(async (data) => {
         setLoading(true);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            throw new Error("Invalid username or password.");
+            signIn("credentials", {
+                email: data.email,
+                password: data.password,
+                redirect: false,
+            })
         } catch (error) {
             if (error instanceof Error) {
                 setLoading(false);
                 dispatch(addNotification({
                     type: "error",
-                    message: "Invalid username or password.",
+                    message: error,
                 }))
             }
         }
@@ -121,26 +125,27 @@ export default function Authorization() {
                     <h2 className="text-2xl text-black text-center font-semibold mb-4 mt-4">Sign In to Aviator Ascent</h2>
                     <form onSubmit={onSubmit}>
                         <div className="mb-4 relative">
-                            <label htmlFor="username" className="block mb-1 font-medium text-black">
-                                Username
+                            <label htmlFor="email" className="block mb-1 font-medium text-black">
+                                Email
                             </label>
                             <div className="relative">
                                 <input
                                     type="text"
-                                    id="username"
-                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.username && errorVisible ? 'border-red-500' : ''
+                                    id="email"
+                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-500 text-gray-900 ${errors.email && errorVisible ? 'border-red-500' : ''
                                         } pl-10`}
-                                    {...register('username')}
+                                    {...register('email')}
                                     onFocus={() => setErrorVisible(false)}
-                                    onBlur={() => setErrorVisible(errors.username !== undefined)}
+                                    onBlur={() => setErrorVisible(errors.email !== undefined)}
+                                    disabled={isLoading}
                                 />
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <FiUser className="text-gray-600" />
                                 </span>
                             </div>
-                            {errors.username && errorVisible && (
+                            {errors.email && errorVisible && (
                                 <p className="mt-1 text-sm text-red-500">
-                                    {errors.username.message}
+                                    {errors.email.message}
                                 </p>
                             )}
                         </div>
@@ -157,6 +162,7 @@ export default function Authorization() {
                                     {...register("password")}
                                     onFocus={() => setErrorVisible(false)}
                                     onBlur={() => setErrorVisible(errors.password !== undefined)}
+                                    disabled={isLoading}
                                 />
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <FiLock className="text-gray-600" />

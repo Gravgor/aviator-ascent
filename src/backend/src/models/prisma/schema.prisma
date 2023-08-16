@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String       @id @default(cuid()) @map("_id")
+  email              String       @unique
+  password           String
+  firstName          String
+  lastName           String
+  userRank           String       @default("None") 
+  userAirline        String       @default("None")
+  userFlightHours    Int         @default(0)
+  userReputation     Int     @default(0)
+  userReputationRank String       @default("None")
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  flights            Flight[]
+  sessions           Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid()) @map("_id")
+  sessionToken String   @unique
+  userId       String
+  expiresAt    DateTime
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         Int      @id @default(autoincrement()) @map("_id")
+  identifier String  
+  token      String   @unique
+  expires    DateTime
+
+  @@map("verification_tokens")
+  @@unique([identifier, token])
+}
+
+model Flight {
+  id         Int      @id @default(autoincrement())
+  departure  String
+  arrival    String
+  distance   Float
+  callsign   String
+  airline    String
+  duration   Int // Duration in minutes
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  pilotId    String
+  aircraftId Int
+  pilot      User     @relation(fields: [pilotId], references: [id])
+  aircraft   Aircraft @relation(fields: [aircraftId], references: [id])
+
+  @@map("flights")
+}
+
+model Aircraft {
+  id           Int      @id @default(autoincrement())
+  model        String
+  registration String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  flights      Flight[]
+
+  @@map("aircrafts")
+}

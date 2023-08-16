@@ -5,30 +5,30 @@ type AuthState = {
     username: string | null;
     email: string | null;
     isAuthenticated: boolean;
+    userInfo: object;
+    userFlights: object;
 }
 
 const initialState: AuthState = {
     token: null,
     username: null,
     email: null,
-    isAuthenticated: false
+    isAuthenticated: false,
+    userInfo: {},
+    userFlights: {},
 }
 
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setToken: (state, action: PayloadAction<string>) => {
-            state.token = action.payload;
-        },
-        setUsername: (state, action: PayloadAction<string>) => {
-            state.username = action.payload;
-        },
-        setEmail: (state, action: PayloadAction<string>) => {
-            state.email = action.payload;
-        },
-        setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
-            state.isAuthenticated = action.payload;
+        setUser: (state, action: PayloadAction<{token: string, username: string, email: string, userInfo: object, userFlights: object}>) => {
+            state.token = action.payload.token;
+            state.username = action.payload.username;
+            state.email = action.payload.email;
+            state.isAuthenticated = true;
+            state.userInfo = action.payload.userInfo;
+            state.userFlights = action.payload.userFlights;
         },
         logout: (state) => {
             state.token = null;
@@ -39,5 +39,5 @@ export const authSlice = createSlice({
     }
 })
 
-export const { setToken, setUsername, setEmail, setIsAuthenticated, logout } = authSlice.actions;   
+export const { setUser, logout } = authSlice.actions;   
 export default authSlice.reducer;
