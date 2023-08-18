@@ -38,6 +38,7 @@ app.use(cors());
 
 app.use('/api/user', userRoutes);
 
+
 app.get('/', (req, res) => {
     return res.status(200).json({ message: 'Hello World' });
 });

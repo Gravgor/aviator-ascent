@@ -1,8 +1,6 @@
 "use client"
-
 import { useState, useEffect } from "react";
-
-import { useForm, Resolver, set } from "react-hook-form";
+import { useForm, Resolver } from "react-hook-form";
 import { FiUser, FiLock, FiArrowRight, FiLink, FiLoader } from "react-icons/fi";
 import Image from "next/image";
 import Link from 'next/link'
@@ -11,6 +9,8 @@ import { addNotification } from "@/redux/features/notificationSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
 import { setUser } from "@/redux/features/authSlice";
+import { useLoginUserMutation } from "@/redux/services/userApi";
+
 
 type FormValues = {
     email: string;
@@ -63,6 +63,8 @@ export default function Authorization() {
 
     const [isLoading, setLoading] = useState(false);
 
+    const [loginUser, { isLoading: isLoginLoading }] = useLoginUserMutation();
+
     const dispatch = useAppDispatch();
 
     const router = useRouter();
@@ -86,80 +88,30 @@ export default function Authorization() {
 
     const onSubmit = handleSubmit(async (data) => {
         setLoading(true);
-        try {
-            const request = await fetch(`/api/auth`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            })
-            const response = await request.json();
-            if (response.error) {
-                setLoading(false);
-                dispatch(addNotification({
-                    type: "error",
-                    message: response.message,
-                }))
-            }
-            else {
-                setLoading(false);
-                dispatch(addNotification({
-                    type: "success",
-                    message: "Logged in successfully!",
-                }))
+        loginUser(data).unwrap()
+        .then((response) => {
+            if(response.user) {
                 dispatch(setUser({
-                    email: response.email,
                     token: "token",
-                }))
-                router.push('/dashboard')
-            }
-        } catch (error) {
-            if (error instanceof Error) {
-                setLoading(false);
-                dispatch(addNotification({
-                    type: "error",
-                    message: error.message,
-                }))
-        }
-        }
-        /*try {
-           const request = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-           })
-            const response = await request.json();
-            if (response.error) {
-                setLoading(false);
-                dispatch(addNotification({
-                    type: "error",
-                    message: response.message,
-                }))
+                    email: response.user.email,
+                }));
+                router.push("/dashboard");
             } else {
-                setLoading(false);
-                dispatch(addNotification({
-                    type: "success",
-                    message: "Logged in successfully!",
-                }))
-                dispatch(setUser({
-                    email: response.email,
-                    token: "token",
-                }))
-                router.push('/dashboard')
-            }
-        } catch (error) {
-            if (error instanceof Error) {
-                setLoading(false);
                 dispatch(addNotification({
                     type: "error",
-                    message: error.message,
+                    message: "There was an error logging you in. Please try again later.",
                 }))
             }
-        }*/
-    });
+        })
+        .catch((error) => {
+            dispatch(addNotification({
+                type: "error",
+                message: "There was an server error. Please try again later.",
+            }))
+        })
+        setLoading(false);
+        
+    })
 
     return (
         <div className="relative min-h-screen">
@@ -235,7 +187,7 @@ export default function Authorization() {
                                 </p>
                             )}
                         </div>
-                        <SubmitButton text="Sign In" isLoading={isLoading}/>
+                        <SubmitButton text="Sign In" isLoading={isLoading} />
                     </form>
                     <div className="flex items-center justify-between mt-4">
                         <div className="text-center">

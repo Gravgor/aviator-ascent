@@ -2,8 +2,6 @@ import { Providers } from '@/redux/provider'
 import './globals.css'
 import Footer from '@/components/global/Footer'
 import NotificationContainer from '@/components/global/NotificationContainer'
-import AuthContext from '@/context/AuthContext'
-import { Session } from '@/context/AuthContext'
 
 
 

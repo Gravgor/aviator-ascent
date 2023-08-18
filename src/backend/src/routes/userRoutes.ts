@@ -13,5 +13,14 @@ router.get('/auth/logout', ensureAuthenticated, (req, res) => {
     return res.status(200).json({ message: 'Logged out' });
 })
 
+router.get('/auth/session/check', ensureAuthenticated, (req, res) => {
+    if(req.isAuthenticated()){
+        return res.status(200).json({ message: 'Authenticated' });
+    } else {
+        return res.status(401).json({ message: 'Not authenticated' });
+    }
+})
+
+
 
 export default router;
