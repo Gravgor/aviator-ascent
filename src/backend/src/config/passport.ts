@@ -5,6 +5,8 @@ import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+import { User } from '@prisma/client';
+
 passport.use(
   new LocalStrategy(
     {
@@ -32,10 +34,9 @@ passport.use(
   )
 );
 
-passport.serializeUser((user, done) => {
-  //@ts-ignore
-  done(null, user.id); 
-});
+passport.serializeUser((user: User, done) => {
+  done(null, user.id);
+})
 
 passport.deserializeUser(async (id: string, done) => {
   try {
