@@ -87,29 +87,31 @@ export default function Authorization() {
 
 
     const onSubmit = handleSubmit(async (data) => {
-        setLoading(true);
-        loginUser(data).unwrap()
-        .then((response) => {
-            if(response.user) {
+        setLoading(true)
+        setTimeout(async () => {
+            try {
+              const response = await loginUser(data).unwrap();
+              if (response.ok) {
                 dispatch(setUser({
-                    token: "token",
-                    email: response.user.email,
+                  token: "token",
                 }));
                 router.push("/dashboard");
-            } else {
+              } else if (!response.ok) {
                 dispatch(addNotification({
-                    type: "error",
-                    message: "There was an error logging you in. Please try again later.",
-                }))
-            }
-        })
-        .catch((error) => {
-            dispatch(addNotification({
+                  type: "error",
+                  message: response.message,
+                }));
+              }
+            } catch (error) {
+              console.log(error);
+              dispatch(addNotification({
                 type: "error",
-                message: "There was an server error. Please try again later.",
-            }))
-        })
-        setLoading(false);
+                message: "There was a server error. Please try again later.",
+              }));
+            } finally {
+              setLoading(false);
+            }
+          }, 1000);
         
     })
 
@@ -191,13 +193,13 @@ export default function Authorization() {
                     </form>
                     <div className="flex items-center justify-between mt-4">
                         <div className="text-center">
-                            <Link className="text-blue-500 hover:underline flex items-center" href="/forgot-password">
+                            <Link className="text-blue-500 hover:underline flex items-center" href="/authorization/forgot-password">
                                 <FiLink className="inline-block mr-1" />
                                 Forgot Password?
                             </Link>
                         </div>
                         <div className="text-center flex flex-col">
-                            <Link className="text-blue-500 hover:underline flex items-center" href="/create-account" passHref>
+                            <Link className="text-blue-500 hover:underline flex items-center" href="/authorization/create-account" passHref>
                                 <FiLink className="inline-block mr-1" />
                                 Create Account
                             </Link>

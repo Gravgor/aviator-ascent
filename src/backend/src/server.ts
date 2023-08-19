@@ -19,10 +19,16 @@ app.use(session({
     secret: process.env.SECRET_SESSION || 'secret',
     resave: false,
     saveUninitialized: true,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        secure: true,
+        sameSite: 'none'
+    },
 }))
 
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 winston.add(new winston.transports.Console({
     format: winston.format.combine(
@@ -30,10 +36,7 @@ winston.add(new winston.transports.Console({
         winston.format.simple(),
     )
 }))
-
 app.use(helmet());
-
-// Use CORS middleware
 app.use(cors());
 
 app.use('/api/user', userRoutes);

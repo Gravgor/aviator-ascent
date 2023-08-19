@@ -13,7 +13,8 @@ export async function POST(request: Request){
         body: JSON.stringify({ email, password })
     })
     const data = await req.json()
-    return NextResponse.json({
-        user: data,
-    })
+    if(data.error || data.message) {
+        return NextResponse.json({ok: false, message: data.message})
+    } 
+    return NextResponse.json({ok: true})
 }

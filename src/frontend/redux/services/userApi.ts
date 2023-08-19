@@ -7,7 +7,7 @@ type User = {
 }
 
 type LoginResponse = {
-    user: User;
+    ok: boolean;
     message?: string;
 }
 

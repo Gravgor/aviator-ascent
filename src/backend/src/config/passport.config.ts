@@ -5,16 +5,14 @@ import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-import { User } from '@prisma/client';
-
 passport.use(
   new LocalStrategy(
     {
-      usernameField: 'email', 
+      usernameField: 'email',
     },
     async (email, password, done) => {
       try {
-        const user = await prisma.user.findUniqueOrThrow({ where: { email } });
+        const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
           return done(null, false, { message: 'Incorrect email or password' });
@@ -34,19 +32,19 @@ passport.use(
   )
 );
 
-passport.serializeUser((user: User, done) => {
+
+
+passport.serializeUser((user, done) => {
   done(null, user.id);
-})
+});
 
 passport.deserializeUser(async (id: string, done) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({ where: { id: id } });
     done(null, user);
   } catch (error) {
     done(error);
   }
 });
-
-prisma.$disconnect();
 
 export default passport;
